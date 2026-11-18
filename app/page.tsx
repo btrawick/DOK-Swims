@@ -75,8 +75,6 @@ export default function Home(){
   const ordered=useMemo(()=>swimmers.slice().sort(sorter),[swimmers]);
   const filtered=ordered.filter(s=>(group==='All groups'||s.group===group)&&fullName(s).toLowerCase().includes(search.toLowerCase()));
   const active=swimmers.find(s=>s.id===selected);
-  const totalRatings=assessments.filter(a=>a.rating>0);
-  const average=totalRatings.length?(totalRatings.reduce((sum,a)=>sum+a.rating,0)/totalRatings.length).toFixed(1):'—';
   function showLatest(id:string,st:Stroke){if(latest(assessments,id,st))setDetail({swimmerId:id,stroke:st});}
   function openAssessment(id:string,st:Stroke='Freestyle'){setDetail(null);if(view==='assess')persistPendingAssessment();setSelected(id);loadStroke(id,st);setView('assess');setNotice('');}
   function loadStroke(id:string,st:Stroke){
