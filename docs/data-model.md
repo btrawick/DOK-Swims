@@ -81,3 +81,7 @@ Future Neon schema: add `feedback_options.category` and a many-to-many `feedback
 ## Same-day assessment editing
 
 One assessment per `(club_id, swimmer_id, stroke, assessment_date)` in the coach's club-local calendar date. Reopening the same swimmer and stroke on the same date loads the saved rating, selected feedback IDs and comment; edits update that record rather than adding a new history row. Previous dates remain immutable snapshots from the trainer's point of view. In Neon, enforce this with a unique constraint and a single transactional upsert; batch local edits on navigation or explicit save, not on each checkbox or keystroke. Consider an audit trail for concurrent trainer edits and define a club timezone. The in-memory demo currently uses the browser's local date and has no network writes.
+
+## Starts and turns competencies
+
+The demo now supports two optional skill areas (`Starts`, `Turns`) alongside four strokes. Stroke ratings remain 1–10; skills use four ordered levels: 1 Not yet, 2 Developing, 3 Independent, 4 Consistent. Store assessment kind and score scale explicitly in a future schema to avoid confusing skill competency with stroke rating. Keep a single assessment per swimmer, skill/stroke and club-local date. Turn feedback distinguishes flip-turn and open-turn techniques in text; a future refinement can select turn subtype (flip/open) and start subtype (block/water) for tighter filtering. Do not calculate team-wide averages across incompatible scales.

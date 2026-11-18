@@ -1,4 +1,4 @@
-export type StrokeName = 'Freestyle' | 'Backstroke' | 'Breaststroke' | 'Butterfly';
+export type StrokeName = 'Freestyle' | 'Backstroke' | 'Breaststroke' | 'Butterfly' | 'Starts' | 'Turns';
 export type Language = 'en' | 'nl';
 export type FeedbackCategory = 'arms' | 'legs' | 'body' | 'breathing' | 'timing';
 export type FeedbackItem = { id: string; category: FeedbackCategory; strokes: StrokeName[]; en: string; nl: string };
@@ -641,7 +641,25 @@ export const feedbackItems: FeedbackItem[] = [
     ],
     "en": "Rotate the body smoothly around its long axis",
     "nl": "Draai het lichaam vloeiend om de lengteas"
-  }
+  },
+  {"id":"start-stance","category":"body","strokes":["Starts"],"en":"Set a stable starting position before the signal","nl":"Neem een stabiele starthouding aan vóór het startsignaal"},
+  {"id":"start-reaction","category":"timing","strokes":["Starts"],"en":"React promptly to the start signal without moving early","nl":"Reageer vlot op het startsignaal zonder te vroeg te bewegen"},
+  {"id":"start-drive","category":"legs","strokes":["Starts"],"en":"Push explosively through both legs from the block or wall","nl":"Zet krachtig af met beide benen vanaf het startblok of de wand"},
+  {"id":"start-entry","category":"body","strokes":["Starts"],"en":"Enter the water in a narrow, streamlined line","nl":"Duik het water in met een smalle, gestroomlijnde houding"},
+  {"id":"start-depth","category":"body","strokes":["Starts"],"en":"Control entry depth and avoid diving too deep","nl":"Beheers de duikdiepte en duik niet te diep"},
+  {"id":"start-streamline","category":"arms","strokes":["Starts"],"en":"Lock hands together with arms extended beside the ears","nl":"Houd de handen samen en de armen gestrekt langs de oren"},
+  {"id":"start-underwater","category":"legs","strokes":["Starts"],"en":"Maintain a controlled underwater kick after entry","nl":"Houd een gecontroleerde onderwaterbeenslag na de duik"},
+  {"id":"start-breakout","category":"timing","strokes":["Starts"],"en":"Time the first stroke to preserve speed during breakout","nl":"Zet de eerste armslag op tijd in om snelheid te behouden"},
+  {"id":"turn-approach","category":"timing","strokes":["Turns"],"en":"Maintain speed into the wall without an unnecessary glide","nl":"Behoud snelheid richting de muur zonder onnodig uit te glijden"},
+  {"id":"turn-distance","category":"timing","strokes":["Turns"],"en":"Judge the distance to the wall and initiate the turn on time","nl":"Schat de afstand tot de muur goed in en begin op tijd met keren"},
+  {"id":"turn-flip","category":"body","strokes":["Turns"],"en":"For freestyle/backstroke flip turns: rotate compactly with knees tucked","nl":"Bij vrije slag/rugslag: maak een compacte koprol met opgetrokken knieën"},
+  {"id":"turn-open-touch","category":"arms","strokes":["Turns"],"en":"For breaststroke/butterfly: touch the wall simultaneously with both hands","nl":"Bij schoolslag/vlinderslag: raak de muur gelijktijdig met beide handen aan"},
+  {"id":"turn-open-rotation","category":"body","strokes":["Turns"],"en":"For open turns: rotate efficiently without lifting the head too high","nl":"Bij open keerpunten: draai vlot zonder het hoofd te hoog op te tillen"},
+  {"id":"turn-feet","category":"legs","strokes":["Turns"],"en":"Place feet firmly on the wall for an effective push-off","nl":"Plaats de voeten stevig tegen de muur voor een krachtige afzet"},
+  {"id":"turn-push","category":"legs","strokes":["Turns"],"en":"Push off strongly in a streamlined body position","nl":"Zet krachtig af in een gestroomlijnde lichaamshouding"},
+  {"id":"turn-streamline","category":"arms","strokes":["Turns"],"en":"Keep a tight streamline with arms extended after push-off","nl":"Houd de armen gestrekt en het lichaam gestroomlijnd na de afzet"},
+  {"id":"turn-breakout","category":"timing","strokes":["Turns"],"en":"Time underwater kicks and breakout to maintain speed","nl":"Stem onderwaterbeenslagen en de eerste armslag af om snelheid te behouden"},
+  {"id":"turn-breast-pullout","category":"timing","strokes":["Turns"],"en":"For breaststroke: coordinate the permitted underwater pullout and breakout","nl":"Bij schoolslag: stem de toegestane onderwaterfase en het bovenkomen goed af"}
 ];
 export function feedbackFor(stroke: StrokeName, category: FeedbackCategory): FeedbackItem[] { return feedbackItems.filter(item => item.category === category && item.strokes.includes(stroke)); }
 export function feedbackById(id: string): FeedbackItem | undefined { return feedbackItems.find(item => item.id === id); }
