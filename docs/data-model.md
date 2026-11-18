@@ -71,3 +71,9 @@ The demo stores data only in React memory. It has no real login, invitation serv
 - Trainers may select multiple feedback observations for a stroke and add free-text comments. Free text is not machine-translated.
 - The 1–10 rating is an ordinal coaching scale; reports should avoid implying false precision from averages.
 - Neon PostgreSQL is the preferred database candidate; authentication and invitation provider are separate decisions for later. No backend is connected yet.
+
+## Feedback applicability and categories
+
+Feedback library entries have one category (`arms`, `legs`, `body`, `breathing`, `timing`) and an explicit set of applicable strokes. A shared item can apply to multiple strokes without being duplicated. The assessment picker filters by the currently selected stroke *before* grouping by category. For example, breaststroke-specific glide timing must never appear in freestyle/front crawl feedback.
+
+Future Neon schema: add `feedback_options.category` and a many-to-many `feedback_option_strokes(feedback_option_id, stroke)` table with a composite primary key. Validate selected feedback IDs against the assessment stroke on the server. Historical assessments retain stable feedback IDs and label snapshots.
