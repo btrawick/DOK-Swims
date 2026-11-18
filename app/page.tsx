@@ -62,6 +62,7 @@ export default function Home(){
   const [assessmentDirty,setAssessmentDirty]=useState(false);
   const [detail,setDetail]=useState<{swimmerId:string;stroke:Stroke}|null>(null);
   const [feedbackCategory,setFeedbackCategory]=useState<FeedbackCategory>('arms');
+  useEffect(()=>{try{const raw=window.sessionStorage.getItem('dok-swims-demo-current-draft');if(raw){const draft=JSON.parse(raw);if(draft?.dirty&&draft.swimmerId===selected&&draft.stroke===stroke&&typeof draft.note==='string'&&Array.isArray(draft.arms)&&Array.isArray(draft.legs)&&typeof draft.rating==='number'){draftRef.current=draft;setRating(draft.rating);setArms(draft.arms);setLegs(draft.legs);setNote(draft.note);setAssessmentDirty(true);}}}catch{/* Session storage unavailable. */}},[]);
   const t=(en:string,nl:string)=>language==='nl'?nl:en;
   const ratingLabel=(n:number)=>language==='nl'?['Niet beoordeeld','Beginfase','Eerste vooruitgang','In ontwikkeling','Vooruitgang','Voldoende','Stabiel','Goed','Zeer goed','Gevorderd','Uitstekend'][n]:ratingLabels[n];
   const strokeShort=(st:Stroke)=>({Freestyle:t('FR','VS'),Backstroke:t('BK','RU'),Breaststroke:t('BR','SC'),Butterfly:t('FL','VL')}[st]);
