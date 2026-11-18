@@ -35,7 +35,7 @@ function exportCSV(swimmers:Swimmer[], assessments:Assessment[], language:'en'|'
   const names:Record<Stroke,[string,string]>={Freestyle:['Freestyle','Vrije slag'],Backstroke:['Backstroke','Rugslag'],Breaststroke:['Breaststroke','Schoolslag'],Butterfly:['Butterfly','Vlinderslag']};
   const rows=[header.map(csvCell).join(',')];
   swimmers.slice().sort(sorter).forEach(swimmer=>strokes.forEach(st=>{const assessment=latest(assessments,swimmer.id,st);const feedback=assessment?[...assessment.feedback.arms,...assessment.feedback.legs].map(id=>feedbackById(id)?.[language]??id).join('; '):'';rows.push([swimmer.last,swimmer.first,swimmer.age,swimmer.group,names[st][language==='nl'?1:0],assessment?.rating??'',assessment?.date??'',assessment?.coach??'',feedback,assessment?.note??''].map(csvCell).join(','));}));
-  const blob=new Blob(['\\uFEFF'+rows.join('\\r\\n')],{type:'text/csv;charset=utf-8'});
+  const blob=new Blob(['\uFEFF'+rows.join('\r\n')],{type:'text/csv;charset=utf-8'});
   const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='dok-swims-latest-assessments-'+language+'.csv';a.click();URL.revokeObjectURL(url);
 }
 export default function Home(){
