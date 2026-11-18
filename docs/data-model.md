@@ -5,7 +5,7 @@ Status: proposed schema for implementation after coaching workflow is agreed. **
 ## Confirmed product decisions
 
 - One club with multiple invited trainers.
-- One overall integer rating (1–5) per stroke, per assessment.
+- One overall integer rating (1–10) per stroke, per assessment.
 - Four strokes: freestyle, backstroke, breaststroke, butterfly.
 - Stroke-specific selectable feedback for arm and leg technique, plus free-text coaching comments and next steps.
 - Individual and team reports; CSV and PDF output in the full version.
@@ -34,7 +34,7 @@ Use birth year or age band instead of full date of birth unless truly required. 
 Use stable IDs; editing a label must not rewrite historical assessments. Clubs may eventually add their own options.
 
 ### assessments
-`id uuid PK`, `club_id uuid FK clubs`, `swimmer_id uuid FK swimmers`, `coach_user_id uuid FK auth.users`, `stroke enum`, `rating int CHECK (rating BETWEEN 1 AND 5)`, `comment text CHECK (char_length(comment) <= 2000)`, `assessed_at timestamptz`, `created_at timestamptz`.
+`id uuid PK`, `club_id uuid FK clubs`, `swimmer_id uuid FK swimmers`, `coach_user_id uuid FK auth.users`, `stroke enum`, `rating int CHECK (rating BETWEEN 1 AND 10)`, `comment text CHECK (char_length(comment) <= 2000)`, `assessed_at timestamptz`, `created_at timestamptz`.
 Multiple assessments for the same swimmer and stroke are allowed. Server validates that swimmer and coach belong to the same club.
 
 ### assessment_feedback
@@ -63,3 +63,11 @@ Invitation tokens must be managed by the authentication provider or stored only 
 ## Current prototype limitations
 
 The demo stores data only in React memory. It has no real login, invitation service, persistence or PDF generator. It must not be used with identifiable children's data.
+
+## Localization and feedback IDs
+
+- Supported UI locales: English (`en`) and Dutch (`nl`), switchable without changing assessment data.
+- Feedback options use stable identifiers and localized English/Dutch labels. Persist option IDs plus a language-neutral snapshot/translation version rather than using display text as the identifier.
+- Trainers may select multiple feedback observations for a stroke and add free-text comments. Free text is not machine-translated.
+- The 1–10 rating is an ordinal coaching scale; reports should avoid implying false precision from averages.
+- Neon PostgreSQL is the preferred database candidate; authentication and invitation provider are separate decisions for later. No backend is connected yet.
