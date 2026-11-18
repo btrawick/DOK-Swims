@@ -69,7 +69,7 @@ export default function Home(){
   const feedbackText=(id:string)=>feedbackById(id)?.[language]??id;
   const categoryLabel=(category:FeedbackCategory)=>({arms:t('Arms','Armen'),legs:t('Legs','Benen'),body:t('Body position','Lichaamshouding'),breathing:t('Breathing','Ademhaling'),timing:t('Timing & coordination','Timing & coördinatie')}[category]);
   const selectedFeedback=[...arms,...legs];
-  function updateDraft(patch:Partial<{rating:number;arms:string[];legs:string[];note:string}>){const current=draftRef.current;if(current){draftRef.current={...current,...patch,dirty:true};}setAssessmentDirty(true);}
+  function updateDraft(patch:Partial<{rating:number;arms:string[];legs:string[];note:string}>){const current=draftRef.current;if(current){draftRef.current={...current,...patch,dirty:true};try{window.sessionStorage.setItem('dok-swims-demo-current-draft',JSON.stringify(draftRef.current));}catch{/* Session storage unavailable. */}}setAssessmentDirty(true);}
   const toggleFeedback=(id:string,checked:boolean)=>{const item=feedbackById(id);if(!item)return;const current=draftRef.current;const previous=item.category==='legs'?(current?.legs??legs):(current?.arms??arms);const next=checked?[...new Set([...previous,id])]:previous.filter(x=>x!==id);updateDraft(item.category==='legs'?{legs:next}:{arms:next});const setter=item.category==='legs'?setLegs:setArms;setter(next);};
   const ordered=useMemo(()=>swimmers.slice().sort(sorter),[swimmers]);
   const filtered=ordered.filter(s=>(group==='All groups'||s.group===group)&&fullName(s).toLowerCase().includes(search.toLowerCase()));
@@ -87,13 +87,14 @@ export default function Home(){
     setLegs([...(sameDay?.feedback.legs??[])]);
     setNote(sameDay?.note??'');
     draftRef.current={swimmerId:id,stroke:st,rating:sameDay?.rating??prior?.rating??5,arms:[...(sameDay?.feedback.arms??[])],legs:[...(sameDay?.feedback.legs??[])],note:sameDay?.note??'',dirty:false};
+    try{const raw=window.sessionStorage.getItem('dok-swims-demo-current-draft');if(raw){const draft=JSON.parse(raw);if(draft?.swimmerId===id&&draft?.stroke===st&&draft?.dirty&&typeof draft.note==='string'&&Array.isArray(draft.arms)&&Array.isArray(draft.legs)&&typeof draft.rating==='number'){draftRef.current=draft;setRating(draft.rating);setArms(draft.arms);setLegs(draft.legs);setNote(draft.note);setAssessmentDirty(true);return;}}}catch{/* Session storage unavailable. */}
     setAssessmentDirty(false);
   }
   function persistPendingAssessment(){
     const draft=draftRef.current;
     if(!draft?.dirty)return;
     upsertAssessment(draft.swimmerId,draft.stroke,draft.rating,draft.arms,draft.legs,draft.note);
-    draftRef.current={...draft,dirty:false};setAssessmentDirty(false);
+    draftRef.current={...draft,dirty:false};try{window.sessionStorage.removeItem('dok-swims-demo-current-draft');}catch{}setAssessmentDirty(false);
   }
   function upsertAssessment(swimmerId:string,st:Stroke,score:number,armIds:string[],legIds:string[],comment:string){
     const date=today();
@@ -105,7 +106,7 @@ export default function Home(){
     try{window.localStorage.setItem('dok-swims-demo-assessments-v1',JSON.stringify(updated));}catch{/* In-memory fallback. */}
   }
   function changeStroke(id:string,st:Stroke){persistPendingAssessment();loadStroke(id,st);}
-  function saveAssessment(){if(!active)return;setFeedbackOpen(false);const draft=draftRef.current;upsertAssessment(active.id,stroke,draft?.rating??rating,draft?.arms??arms,draft?.legs??legs,draft?.note??note);if(draft)draftRef.current={...draft,dirty:false};setAssessmentDirty(false);setNotice(t('Assessment saved for ','Beoordeling opgeslagen voor ')+fullName(active)+' · '+strokeLabel(stroke)+' · '+today());}
+  function saveAssessment(){if(!active)return;setFeedbackOpen(false);const draft=draftRef.current;upsertAssessment(active.id,stroke,draft?.rating??rating,draft?.arms??arms,draft?.legs??legs,draft?.note??note);if(draft)draftRef.current={...draft,dirty:false};try{window.sessionStorage.removeItem('dok-swims-demo-current-draft');}catch{}setAssessmentDirty(false);setNotice(t('Assessment saved for ','Beoordeling opgeslagen voor ')+fullName(active)+' · '+strokeLabel(stroke)+' · '+today());}
   function addSwimmer(e:React.FormEvent){e.preventDefault();const a=Number(age);if(!first.trim()||!last.trim()||!Number.isInteger(a)||a<5||a>18){setNotice('Enter a first name, surname and age between 5 and 18.');return;}const s={id:uid(),first:first.trim().slice(0,50),last:last.trim().slice(0,50),age:a,group:newGroup.trim().slice(0,50)||'Unassigned'};setSwimmers(prev=>[...prev,s]);setSelected(s.id);setFirst('');setLast('');setShowAdd(false);setNotice('Demo swimmer added for this session only.');}
   function removeSwimmer(id:string){const s=swimmers.find(x=>x.id===id);if(!s||!window.confirm('Remove '+fullName(s)+' from this demo session, including their assessments?'))return;setSwimmers(prev=>prev.filter(x=>x.id!==id));setAssessments(prev=>prev.filter(x=>x.swimmerId!==id));if(selected===id)setSelected(swimmers.find(x=>x.id!==id)?.id??'');setNotice('Demo swimmer removed.');}
   function go(next:View){if(view==='assess'&&next!=='assess')persistPendingAssessment();setView(next);setNotice('');setMobileNav(false);}
