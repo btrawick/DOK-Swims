@@ -659,7 +659,28 @@ export const feedbackItems: FeedbackItem[] = [
   {"id":"turn-push","category":"legs","strokes":["Turns"],"en":"Push off strongly in a streamlined body position","nl":"Zet krachtig af in een gestroomlijnde lichaamshouding"},
   {"id":"turn-streamline","category":"arms","strokes":["Turns"],"en":"Keep a tight streamline with arms extended after push-off","nl":"Houd de armen gestrekt en het lichaam gestroomlijnd na de afzet"},
   {"id":"turn-breakout","category":"timing","strokes":["Turns"],"en":"Time underwater kicks and breakout to maintain speed","nl":"Stem onderwaterbeenslagen en de eerste armslag af om snelheid te behouden"},
-  {"id":"turn-breast-pullout","category":"timing","strokes":["Turns"],"en":"For breaststroke: coordinate the permitted underwater pullout and breakout","nl":"Bij schoolslag: stem de toegestane onderwaterfase en het bovenkomen goed af"}
+  {"id":"turn-breast-pullout","category":"timing","strokes":["Turns"],"en":"For breaststroke: coordinate the permitted underwater pullout and breakout","nl":"Bij schoolslag: stem de toegestane onderwaterfase en het bovenkomen goed af"},
+  {"id":"start-feet","category":"body","strokes":["Starts"],"en":"Place both feet securely before starting","nl":"Plaats beide voeten stevig vóór de start"},
+  {"id":"start-hips","category":"body","strokes":["Starts"],"en":"Raise the hips into a balanced ready position","nl":"Breng de heupen omhoog in een stabiele starthouding"},
+  {"id":"start-weight","category":"body","strokes":["Starts"],"en":"Keep weight forward without losing balance","nl":"Breng het gewicht naar voren zonder het evenwicht te verliezen"},
+  {"id":"start-head","category":"body","strokes":["Starts"],"en":"Keep the head aligned with the spine during takeoff","nl":"Houd het hoofd in lijn met de wervelkolom tijdens de afzet"},
+  {"id":"start-arm-swing","category":"arms","strokes":["Starts"],"en":"Drive the arms forward together during takeoff","nl":"Zwaai beide armen krachtig naar voren tijdens de afzet"},
+  {"id":"start-hands","category":"arms","strokes":["Starts"],"en":"Bring hands together before water entry","nl":"Breng de handen samen vóór het te water gaan"},
+  {"id":"start-front-leg","category":"legs","strokes":["Starts"],"en":"Drive strongly from the front leg at takeoff","nl":"Zet krachtig af met het voorste been"},
+  {"id":"start-rear-leg","category":"legs","strokes":["Starts"],"en":"Use the rear leg actively in a track start","nl":"Gebruik het achterste been actief bij een schredestart"},
+  {"id":"start-extension","category":"legs","strokes":["Starts"],"en":"Fully extend ankles, knees and hips during takeoff","nl":"Strek enkels, knieën en heupen volledig tijdens de afzet"},
+  {"id":"start-angle","category":"body","strokes":["Starts"],"en":"Enter at a controlled angle rather than landing flat","nl":"Ga onder een gecontroleerde hoek het water in in plaats van plat te landen"},
+  {"id":"start-splash","category":"body","strokes":["Starts"],"en":"Enter through a small opening to reduce splash and drag","nl":"Duik door een kleine opening om spatten en weerstand te beperken"},
+  {"id":"start-legs-together","category":"legs","strokes":["Starts"],"en":"Bring the legs together quickly after takeoff","nl":"Breng de benen snel bij elkaar na de afzet"},
+  {"id":"start-streamline-core","category":"body","strokes":["Starts"],"en":"Keep the core tight and body straight during the glide","nl":"Span de romp aan en houd het lichaam recht tijdens het glijden"},
+  {"id":"start-kick-timing","category":"timing","strokes":["Starts"],"en":"Begin underwater kicking before losing glide speed","nl":"Begin tijdig met de onderwaterbeenslag voordat de glijsnelheid wegvalt"},
+  {"id":"start-kick-control","category":"legs","strokes":["Starts"],"en":"Avoid oversized underwater kicks that increase drag","nl":"Voorkom te grote onderwaterbeenslagen die extra weerstand geven"},
+  {"id":"start-breakout-depth","category":"timing","strokes":["Starts"],"en":"Rise smoothly towards the surface for breakout","nl":"Kom geleidelijk naar het wateroppervlak voor de eerste armslag"},
+  {"id":"start-first-breath","category":"breathing","strokes":["Starts"],"en":"Avoid lifting the head to breathe during breakout","nl":"Til het hoofd niet op om te ademen bij het bovenkomen"},
+  {"id":"start-first-stroke","category":"timing","strokes":["Starts"],"en":"Maintain momentum into the first full stroke","nl":"Behoud de snelheid bij de overgang naar de eerste volledige armslag"},
+  {"id":"start-backstroke-grip","category":"arms","strokes":["Starts"],"en":"For backstroke starts: hold the grips firmly with relaxed shoulders","nl":"Bij rugslagstarts: houd de handgrepen stevig vast met ontspannen schouders"},
+  {"id":"start-backstroke-feet","category":"legs","strokes":["Starts"],"en":"For backstroke starts: place feet securely against the wall","nl":"Bij rugslagstarts: plaats de voeten stevig tegen de muur"},
+  {"id":"start-backstroke-arch","category":"body","strokes":["Starts"],"en":"For backstroke starts: drive hips upward and backward","nl":"Bij rugslagstarts: duw de heupen omhoog en naar achteren"}
 ];
 export function feedbackFor(stroke: StrokeName, category: FeedbackCategory): FeedbackItem[] { return feedbackItems.filter(item => item.category === category && item.strokes.includes(stroke)); }
 export function feedbackById(id: string): FeedbackItem | undefined { return feedbackItems.find(item => item.id === id); }
