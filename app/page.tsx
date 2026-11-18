@@ -27,7 +27,7 @@ const ratingLabels = ['Not assessed','Starting','Early progress','Developing','I
 const sorter = (a:Swimmer,b:Swimmer) => a.last.localeCompare(b.last) || a.first.localeCompare(b.first);
 const fullName = (s:Swimmer) => s.first+' '+s.last;
 const latest = (assessments:Assessment[], id:string, stroke:Stroke) => assessments.filter(a=>a.swimmerId===id && a.stroke===stroke).sort((a,b)=>b.date.localeCompare(a.date)||assessments.indexOf(b)-assessments.indexOf(a))[0];
-const today = () => new Date().toISOString().slice(0,10);
+const today = () => {const now=new Date();const year=now.getFullYear();const month=String(now.getMonth()+1).padStart(2,'0');const day=String(now.getDate()).padStart(2,'0');return `${year}-${month}-${day}`;};
 const uid = () => Math.random().toString(36).slice(2)+Date.now().toString(36);
 function csvCell(value:string|number){return '"'+String(value).replace(/"/g,'""')+'"';}
 function exportCSV(swimmers:Swimmer[], assessments:Assessment[], language:'en'|'nl', allHistory=false){
@@ -74,10 +74,31 @@ export default function Home(){
   const average=totalRatings.length?(totalRatings.reduce((sum,a)=>sum+a.rating,0)/totalRatings.length).toFixed(1):'—';
   function showLatest(id:string,st:Stroke){if(latest(assessments,id,st))setDetail({swimmerId:id,stroke:st});}
   function openAssessment(id:string,st:Stroke='Freestyle'){setDetail(null);if(view==='assess')persistPendingAssessment();setSelected(id);loadStroke(id,st);setView('assess');setNotice('');}
-  function loadStroke(id:string,st:Stroke){setFeedbackOpen(false);setFeedbackCategory('arms');setStroke(st);const prior=latest(assessments,id,st);setRating(prior?.rating??5);setArms([]);setLegs([]);setNote('');setAssessmentDirty(false);}
-  function persistPendingAssessment(){if(!assessmentDirty||!active)return;const next:Assessment={id:uid(),swimmerId:active.id,stroke,rating,feedback:{arms:[...arms],legs:[...legs]},note:note.trim().slice(0,500),date:today(),coach:'Demo coach'};setAssessments(prev=>[...prev,next]);setAssessmentDirty(false);}
+  function loadStroke(id:string,st:Stroke){
+    setFeedbackOpen(false);setFeedbackCategory('arms');setStroke(st);
+    const sameDay=assessments.find(a=>a.swimmerId===id&&a.stroke===st&&a.date===today());
+    const prior=latest(assessments,id,st);
+    setRating(sameDay?.rating??prior?.rating??5);
+    setArms([...(sameDay?.feedback.arms??[])]);
+    setLegs([...(sameDay?.feedback.legs??[])]);
+    setNote(sameDay?.note??'');
+    setAssessmentDirty(false);
+  }
+  function persistPendingAssessment(){
+    if(!assessmentDirty||!active)return;
+    upsertAssessment(active.id,stroke,rating,arms,legs,note);
+    setAssessmentDirty(false);
+  }
+  function upsertAssessment(swimmerId:string,st:Stroke,score:number,armIds:string[],legIds:string[],comment:string){
+    const date=today();
+    setAssessments(prev=>{
+      const existing=prev.find(a=>a.swimmerId===swimmerId&&a.stroke===st&&a.date===date);
+      const next:Assessment={id:existing?.id??uid(),swimmerId,stroke:st,rating:score,feedback:{arms:[...armIds],legs:[...legIds]},note:comment.trim().slice(0,500),date,coach:existing?.coach??'Demo coach'};
+      return existing?prev.map(a=>a.id===existing.id?next:a):[...prev,next];
+    });
+  }
   function changeStroke(id:string,st:Stroke){persistPendingAssessment();loadStroke(id,st);}
-  function saveAssessment(){if(!active)return;setFeedbackOpen(false);const next:Assessment={id:uid(),swimmerId:active.id,stroke,rating,feedback:{arms,legs},note:note.trim().slice(0,500),date:today(),coach:'Demo coach'};setAssessments(prev=>[...prev,next]);setAssessmentDirty(false);setNotice(stroke+' assessment saved for '+fullName(active)+' (demo session only).');}
+  function saveAssessment(){if(!active)return;setFeedbackOpen(false);upsertAssessment(active.id,stroke,rating,arms,legs,note);setAssessmentDirty(false);setNotice(t('Assessment saved for ','Beoordeling opgeslagen voor ')+fullName(active)+' · '+strokeLabel(stroke)+' · '+today());}
   function addSwimmer(e:React.FormEvent){e.preventDefault();const a=Number(age);if(!first.trim()||!last.trim()||!Number.isInteger(a)||a<5||a>18){setNotice('Enter a first name, surname and age between 5 and 18.');return;}const s={id:uid(),first:first.trim().slice(0,50),last:last.trim().slice(0,50),age:a,group:newGroup.trim().slice(0,50)||'Unassigned'};setSwimmers(prev=>[...prev,s]);setSelected(s.id);setFirst('');setLast('');setShowAdd(false);setNotice('Demo swimmer added for this session only.');}
   function removeSwimmer(id:string){const s=swimmers.find(x=>x.id===id);if(!s||!window.confirm('Remove '+fullName(s)+' from this demo session, including their assessments?'))return;setSwimmers(prev=>prev.filter(x=>x.id!==id));setAssessments(prev=>prev.filter(x=>x.swimmerId!==id));if(selected===id)setSelected(swimmers.find(x=>x.id!==id)?.id??'');setNotice('Demo swimmer removed.');}
   function go(next:View){if(view==='assess'&&next!=='assess')persistPendingAssessment();setView(next);setNotice('');setMobileNav(false);}
@@ -105,7 +126,7 @@ export default function Home(){
           <div className="rating-section"><h2>{t("Overall stroke rating","Algemene slagscore")}</h2><p>1 = Starting · 10 = Excellent</p><div className="rating-buttons" role="group" aria-label="Stroke rating">{[1,2,3,4,5,6,7,8,9,10].map(n=><button key={n} aria-pressed={rating===n} className={rating===n?'selected':''} onClick={()=>{setRating(n);setAssessmentDirty(true);}}>{n}</button>)}</div><strong className="rating-name">{ratingLabel(rating)}</strong></div>
           <div className="feedback-summary"><h2>{t("Technique feedback","Techniekfeedback")}</h2><p>Choose relevant observations from the feedback library, or add a personal coaching note below.</p><button className="secondary" onClick={()=>setFeedbackOpen(true)}><ClipboardCheck size={17}/> Select feedback ({arms.length+legs.length})</button>{(arms.length+legs.length)>0&&<div className="selected-feedback">{[...arms,...legs].map(item=><span key={item}>{feedbackText(item)}</span>)}</div>}</div>
           <label className="notes-label">{t("Personal coaching comments and next steps (optional)","Persoonlijke opmerkingen en vervolgstappen (optioneel)")}<textarea maxLength={500} value={note} onChange={e=>{setNote(e.target.value);setAssessmentDirty(true);}} placeholder="Describe the improvement to work on at the next training session..." rows={3}/></label><button className="primary save" onClick={saveAssessment} disabled={!active}><Check size={18}/> Save demo assessment</button></section>
-          <aside className="panel history"><h2>{t("Assessment history","Beoordelingsgeschiedenis")}</h2><p>{active?fullName(active):'Select a swimmer'} · {strokeLabel(stroke)}</p>{assessments.filter(a=>a.swimmerId===selected&&a.stroke===stroke).slice().reverse().map(a=><div className="history-item" key={a.id}><div><strong>{a.rating}/5 · {ratingLabel(a.rating)}</strong><small>{a.date} · {a.coach}</small></div>{[...a.feedback.arms,...a.feedback.legs].length>0&&<p>{[...a.feedback.arms,...a.feedback.legs].map(feedbackText).join(' · ')}</p>}{a.note&&<p>{a.note}</p>}</div>)}{!assessments.some(a=>a.swimmerId===selected&&a.stroke===stroke)&&<div className="empty">{t("No assessments yet.","Nog geen beoordelingen.")}</div>}</aside></div>
+          <aside className="panel history"><h2>{t("Assessment history","Beoordelingsgeschiedenis")}</h2><p>{active?fullName(active):'Select a swimmer'} · {strokeLabel(stroke)}</p>{assessments.filter(a=>a.swimmerId===selected&&a.stroke===stroke).slice().sort((a,b)=>b.date.localeCompare(a.date)||assessments.indexOf(b)-assessments.indexOf(a)).map(a=><div className="history-item" key={a.id}><div><strong>{a.rating}/10 · {ratingLabel(a.rating)}</strong><small>{a.date} · {a.coach}</small></div>{[...a.feedback.arms,...a.feedback.legs].length>0&&<p>{[...a.feedback.arms,...a.feedback.legs].map(feedbackText).join(' · ')}</p>}{a.note&&<p>{a.note}</p>}</div>)}{!assessments.some(a=>a.swimmerId===selected&&a.stroke===stroke)&&<div className="empty">{t("No assessments yet.","Nog geen beoordelingen.")}</div>}</aside></div>
         </>}
         {view==='reports'&&<><div className="heading"><div><span className="eyebrow">{t("PROGRESS & INSIGHTS","VOORTGANG EN INZICHTEN")}</span><h1>{t("Team reports","Teamrapporten")}</h1><p>{t("Latest ratings and assessment coverage for each swimmer.","Laatste scores en beoordelingsdekking per zwemmer.")}</p></div><div className="report-export-actions"><button className="primary" onClick={()=>exportCSV(swimmers,assessments,language)}><Download size={17}/> {t("Export latest CSV","Exporteer laatste CSV")}</button><button className="secondary" onClick={()=>exportCSV(swimmers,assessments,language,true)}><Download size={17}/> {t("Export history CSV","Exporteer historie CSV")}</button></div></div>
           <div className="panel"><div className="panel-title"><div><h2>{t("Stroke performance","Slagprestaties")}</h2><p>Latest rating for each of the four strokes</p></div></div><div className="table-scroll"><table><thead><tr><th>{t("Swimmer","Zwemmer")}</th><th>{t("Group","Groep")}</th>{strokes.map(st=><th key={st}>{strokeShort(st)}</th>)}<th>Average</th></tr></thead><tbody>{ordered.map(s=>{const scores=strokes.map(st=>latest(assessments,s.id,st)?.rating).filter((n):n is number=>n!==undefined);return <tr key={s.id}><td><button className="name-link" onClick={()=>openAssessment(s.id)}>{s.last}, {s.first}</button></td><td>{s.group}</td>{strokes.map(st=><td key={st}><button type="button" className={'rating-chip rating-detail-button r'+(latest(assessments,s.id,st)?.rating??0)} onClick={()=>showLatest(s.id,st)} disabled={!latest(assessments,s.id,st)} aria-label={t('View latest','Bekijk laatste')+' '+strokeLabel(st)+' '+t('assessment for','beoordeling van')+' '+fullName(s)}>{latest(assessments,s.id,st)?.rating??'—'}</button></td>)}<td><strong>{scores.length?(scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1):'—'}</strong></td></tr>})}</tbody></table></div></div><div className="report-note">CSV export contains the latest dated assessments, feedback and comments for fictional/demo swimmers in this browser session. Ratings are not stored on a server.</div>

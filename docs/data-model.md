@@ -77,3 +77,7 @@ The demo stores data only in React memory. It has no real login, invitation serv
 Feedback library entries have one category (`arms`, `legs`, `body`, `breathing`, `timing`) and an explicit set of applicable strokes. A shared item can apply to multiple strokes without being duplicated. The assessment picker filters by the currently selected stroke *before* grouping by category. For example, breaststroke-specific glide timing must never appear in freestyle/front crawl feedback.
 
 Future Neon schema: add `feedback_options.category` and a many-to-many `feedback_option_strokes(feedback_option_id, stroke)` table with a composite primary key. Validate selected feedback IDs against the assessment stroke on the server. Historical assessments retain stable feedback IDs and label snapshots.
+
+## Same-day assessment editing
+
+One assessment per `(club_id, swimmer_id, stroke, assessment_date)` in the coach's club-local calendar date. Reopening the same swimmer and stroke on the same date loads the saved rating, selected feedback IDs and comment; edits update that record rather than adding a new history row. Previous dates remain immutable snapshots from the trainer's point of view. In Neon, enforce this with a unique constraint and a single transactional upsert; batch local edits on navigation or explicit save, not on each checkbox or keystroke. Consider an audit trail for concurrent trainer edits and define a club timezone. The in-memory demo currently uses the browser's local date and has no network writes.
