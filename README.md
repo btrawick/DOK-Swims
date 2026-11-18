@@ -1,38 +1,33 @@
-# Holloween2026
+# DOK Swims
 
-Mobile-first prototype for a neighborhood Halloween walking route across Amsterdam's Westelijke Eilanden.
+Swim team skills tracking app built with Next.js and TypeScript for Vercel.
 
-## Prototype features
+## Current status
 
-- Interactive Leaflet / OpenStreetMap map
-- Two test Halloween houses
-- Pumpkin map markers
-- Simple route preview between stops
-- Mobile-friendly stop cards
+Initial responsive, deployable application shell only. Authentication, database and assessments are not yet implemented. **Do not enter children's personal data** until secure access controls have been implemented and tested.
 
-## Test addresses
+## Planned features
 
-1. Bickerswerf 19, Amsterdam
-2. Realengracht 164, Amsterdam
-
-> The coordinates currently in `app.js` are approximate prototype positions and should be replaced with verified geocoded coordinates before public launch.
+- Alphabetical swimmer directory (surname, then first name)
+- Four strokes: freestyle, backstroke, breaststroke and butterfly
+- 1–5 ratings per stroke; separate arms and legs feedback checklists
+- Dated assessment history and coach attribution
+- Individual and team progress reports
+- Admin/coach roles and email invitations
 
 ## Run locally
 
-Because this is a static prototype, you can open `index.html` directly or serve the folder with any simple local web server.
-
-For example:
+Requires Node.js 20+.
 
 ```bash
-python3 -m http.server 8080
+npm install
+npm run dev
 ```
 
-Then open `http://localhost:8080`.
+## Vercel
 
-## Next steps
+Import `btrawick/DOK-Swims`, select Next.js, use repository root, and deploy `main` after merging the pull request. No environment variables are required for the initial shell.
 
-- Verify exact house coordinates
-- Add a proper walking route along streets and bridges
-- Add house submission / admin workflow
-- Add opening times and accessibility notes
-- Add "start route" navigation
+## Security before launch
+
+Add authenticated accounts, database row-level access controls, role-based authorization, server-side validation, invitation workflow, audit logs and GDPR-conscious data retention. Never expose service-role secrets in browser code.
